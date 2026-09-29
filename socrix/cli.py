@@ -10,7 +10,7 @@
   socrix verify     check the hash-chained audit log
 """
 from __future__ import annotations
-import argparse, json, sys, time
+import argparse, base64, json, re, sys, time
 from pathlib import Path
 from . import config as C
 
@@ -84,7 +84,10 @@ def export_static(out: Path, evidence_rows: int = 25) -> Path:
     web = Path(__file__).parent / "web"
     html = (web / "index.html").read_text()
     html = html.replace('<link rel="stylesheet" href="static/style.css">', "")
-    html = html.replace("<!--SOCRIX_STATIC_CSS-->", f"<style>{(web / 'style.css').read_text()}</style>")
+    css = re.sub(r'url\("fonts/([\w.-]+\.woff2)"\)',   # inline the self-hosted fonts so the report stays offline
+                 lambda m: 'url("data:font/woff2;base64,' + base64.b64encode((web / "fonts" / m.group(1)).read_bytes()).decode() + '")',
+                 (web / "style.css").read_text())
+    html = html.replace("<!--SOCRIX_STATIC_CSS-->", f"<style>{css}</style>")
     payload = json.dumps(data, default=str, separators=(",", ":")).replace("</", "<\\/")
     html = html.replace("<!--SOCRIX_STATIC_DATA-->", f"<script>window.SOCRIX_DATA={payload};</script>")
     html = html.replace('<script src="static/app.js"></script>', "")

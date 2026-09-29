@@ -98,7 +98,9 @@ def test_web_assets_make_no_external_requests():
     from pathlib import Path
     import re
     web = Path(__file__).resolve().parent.parent / "socrix" / "web"
-    for f in web.iterdir():
+    for f in web.rglob("*"):
+        if f.suffix not in (".html", ".css", ".js"):   # fonts/ holds binary woff2 + OFL licence texts, not page code
+            continue
         assert not re.search(r"https?://(?!127\.0\.0\.1)", f.read_text()), f.name
 
 

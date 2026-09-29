@@ -28,7 +28,7 @@ socrix = "socrix.cli:main"
 include = ["socrix*"]
 
 [tool.setuptools.package-data]
-socrix = ["catalogue.yaml", "web/*"]
+socrix = ["catalogue.yaml", "web/*", "web/fonts/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
