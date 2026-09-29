@@ -1,6 +1,5 @@
 # SOCRIX
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 ![Python](https://img.shields.io/badge/Python-3.11%E2%80%933.13-3776AB?logo=python&logoColor=white)
 ![Offline](https://img.shields.io/badge/runs-fully%20offline%20%C2%B7%20air--gapped-2ea44f)
 ![SIH 2026](https://img.shields.io/badge/SIH%202026-SIH26157-orange)
@@ -95,10 +94,4 @@ Please report vulnerabilities privately — see [SECURITY.md](SECURITY.md). Do n
 
 ## Licence and data notes
 
-Code is released under the [MIT License](LICENSE). Third-party material keeps its own terms — see [NOTICE](NOTICE):
-
-- MITRE ATT&CK® is used under MITRE's terms of use; the reference file is derived from the official STIX bundle, v19.2.
-- The bundled IBM Plex Mono and Noto Sans fonts are under the SIL Open Font License 1.1.
-- The Microsoft GUIDE dataset (CDLA-Permissive-2.0) is not included; only a converter is.
-
-All demo data is synthetic (SimSOC, seed 26157).
+All rights reserved during SIH 2026 evaluation. See [NOTICE](NOTICE) for third-party attributions.
