@@ -1,0 +1,40 @@
+SOCRIX — SOC assurance analytics
+Copyright (c) 2026 Kabir Sinha and the SOCRIX contributors
+
+The source code in this repository is licensed under the MIT License (see LICENSE).
+The MIT License does NOT apply to the third-party material listed below, which
+remains under its own terms.
+
+------------------------------------------------------------------------------
+1. MITRE ATT&CK®
+------------------------------------------------------------------------------
+File:    data/reference/attack_ref_v19_2.json
+Source:  Derived offline from the official MITRE ATT&CK Enterprise STIX bundle, v19.2
+Terms:   MITRE ATT&CK Terms of Use — https://attack.mitre.org/resources/legal-and-branding/terms-of-use/
+
+© The MITRE Corporation. This work is reproduced and distributed with the
+permission of The MITRE Corporation. MITRE ATT&CK® and ATT&CK® are registered
+trademarks of The MITRE Corporation.
+
+------------------------------------------------------------------------------
+2. Fonts (bundled for offline use)
+------------------------------------------------------------------------------
+Files:   socrix/web/fonts/ibm-plex-mono-*.woff2  — IBM Plex Mono
+         socrix/web/fonts/noto-sans-*.woff2      — Noto Sans
+License: SIL Open Font License 1.1 — full texts in
+         socrix/web/fonts/OFL-IBMPlexMono.txt and socrix/web/fonts/OFL-NotoSans.txt
+
+------------------------------------------------------------------------------
+3. Microsoft GUIDE dataset (not included)
+------------------------------------------------------------------------------
+socrix/adapters/guide.py can convert the public Microsoft GUIDE dataset, which
+is licensed under CDLA-Permissive-2.0. The dataset itself is NOT included in
+this repository; download it from its official source and follow its license.
+
+------------------------------------------------------------------------------
+4. Data and affiliation
+------------------------------------------------------------------------------
+All demo data is synthetic (SimSOC, seed 26157). No real Critical Sector
+Entity, employer or SOC data is, or should ever be, stored in this repository.
+This project was built for Smart India Hackathon 2026 (SIH26157) and is not
+affiliated with or endorsed by NTRO, NCIIPC or MITRE.
