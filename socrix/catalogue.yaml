@@ -1,0 +1,155 @@
+# SOCRIX indicator catalogue — MVP 12 (catalogue version 2026.09-mvp12)
+# direction: higher_is_worse (true/false). track: peer | peer+policy | policy
+# brief: reference to SIH26157 brief sections (EG = §3A examples, NS = §3B examples, UC = illustrative use cases)
+EG-01:
+  rate: true
+  name: High/critical alerts closed with no investigation step
+  area: Investigation
+  gap: execution
+  unit: share of high/critical closed alerts
+  higher_is_worse: true
+  mad_floor: 0.005
+  min_n: 20
+  track: peer
+  brief: "EG(i), UC(i)"
+  sample_cases: true
+  template: "{k} of {n} high/critical alerts were closed with no investigation step (acknowledge -> close only)"
+EG-02:
+  name: Implausibly fast closure of high/critical alerts
+  area: Investigation
+  gap: execution
+  unit: log10 median minutes to close (high/critical)
+  higher_is_worse: false
+  mad_floor: 0.05
+  min_n: 20
+  track: peer
+  brief: "EG(ii), UC(i)"
+  sample_cases: true
+  template: "median time-to-close for {n} high/critical alerts was {display}"
+EG-03:
+  rate: true
+  name: Critical true-positives closed without escalation
+  area: Escalation
+  gap: execution
+  unit: share of critical TP alerts
+  higher_is_worse: true
+  mad_floor: 0.01
+  min_n: 5
+  track: peer+policy
+  brief: "EG(iii), UC(iii)"
+  sample_cases: true
+  template: "{k} of {n} critical true-positive alerts have no escalation record"
+EG-04:
+  rate: true
+  name: Near-identical (template-driven) investigation notes
+  area: Operational Discipline
+  gap: execution
+  unit: share of case notes with a near-duplicate on a different asset
+  higher_is_worse: true
+  mad_floor: 0.005
+  min_n: 30
+  track: peer
+  brief: "EG(iv), UC(vii)"
+  sample_cases: true
+  template: "{k} of {n} case notes are near-identical (TF-IDF cosine >= 0.9) to notes on other assets"
+EG-05:
+  rate: true
+  name: Repeat alerts on the same asset and technique without remediation
+  area: Incident Response
+  gap: execution
+  unit: share of recurring (asset, technique) pairs with no remediation
+  higher_is_worse: true
+  mad_floor: 0.02
+  min_n: 5
+  track: peer
+  brief: "UC(ii)"
+  sample_cases: true
+  template: "{k} of {n} recurring asset+technique patterns (>= 3 alerts) show no remediation or root cause"
+EG-07:
+  rate: true
+  name: FP/BP closures with no enrichment step
+  area: Investigation
+  gap: execution
+  unit: share of FP/BP closed alerts
+  higher_is_worse: true
+  mad_floor: 0.005
+  min_n: 20
+  track: peer
+  brief: "EG(i)"
+  sample_cases: true
+  template: "{k} of {n} alerts closed as false/benign positive had no enrichment step"
+NS-01:
+  rate: true
+  name: Silent critical assets (zero alerts, unlikely by chance)
+  area: Threat Detection
+  gap: negative_space
+  unit: share of critical assets with zero alerts
+  higher_is_worse: true
+  mad_floor: 0.01
+  min_n: 5
+  track: peer+policy
+  brief: "NS(i), UC(iv)"
+  sample_cases: false
+  template: "{k} of {n} critical assets produced no alerts at all"
+NS-02:
+  name: Expected ATT&CK tactics absent (seen by >= 70% of comparable peers)
+  area: Threat Detection
+  gap: negative_space
+  unit: count of expected tactics absent
+  higher_is_worse: true
+  mad_floor: 0.5
+  min_n: 3
+  track: peer+policy
+  brief: "NS(ii), NS(vi), UC(vi)"
+  sample_cases: false
+  template: "{k} of {n} ATT&CK v19.2 tactics that comparable peers observe are absent here"
+NS-03:
+  rate: true
+  name: Cases closed with no workflow records
+  area: Investigation
+  gap: negative_space
+  unit: share of cases with no workflow events
+  higher_is_worse: true
+  mad_floor: 0.005
+  min_n: 20
+  track: peer
+  brief: "NS(iii)"
+  sample_cases: true
+  template: "{k} of {n} cases have no investigation workflow records at all"
+NS-05:
+  name: Unexpectedly low activity (alerts per critical asset)
+  area: Security Operations
+  gap: negative_space
+  unit: alerts per critical asset
+  higher_is_worse: false
+  mad_floor: 0.5
+  min_n: 5
+  track: peer
+  brief: "NS(iv), UC(ix)"
+  sample_cases: false
+  template: "{k} alerts across {n} critical assets ({display} per asset)"
+NS-08:
+  rate: true
+  name: Submission data-quality gaps (rejected rows)
+  area: Governance and Oversight
+  gap: negative_space
+  unit: share of submitted alert rows rejected at intake
+  higher_is_worse: true
+  mad_floor: 0.005
+  min_n: 20
+  track: peer+policy
+  brief: "NS(vi)"
+  sample_cases: false
+  template: "{k} of {n} submitted alert rows failed validation (see reject log)"
+WL-01:
+  name: Implausible analyst workload (max cases closed per analyst-day)
+  area: Security Operations
+  gap: workload
+  unit: max over analysts of mean cases closed per active day
+  higher_is_worse: true
+  mad_floor: 0.5
+  min_n: 20
+  track: peer
+  brief: "UC(ix)"
+  sample_cases: true
+  template: "the busiest analyst closed {display} cases per active day across {n} cases"

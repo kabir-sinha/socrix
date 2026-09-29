@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "socrix"
+version = "0.1.0"
+description = "SOCRIX — Supervisory analytics for SOC assessment (SIH26157, NTRO/NCIIPC). Offline, explainable, air-gap ready."
+requires-python = ">=3.11"
+dependencies = [
+  "pandas>=2.2",
+  "numpy>=1.26",
+  "duckdb>=1.1",
+  "scikit-learn>=1.4",
+  "pyyaml>=6.0",
+  "fastapi>=0.110",
+  "uvicorn>=0.29",
+  "pytz>=2024.1",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "httpx>=0.27", "scipy>=1.11"]
+
+[project.scripts]
+socrix = "socrix.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["socrix*"]
+
+[tool.setuptools.package-data]
+socrix = ["catalogue.yaml", "web/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

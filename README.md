@@ -1,0 +1,76 @@
+# SOCRIX
+
+**SOC assurance analytics for NCIIPC (SIH 2026 · problem statement SIH26157).**
+SOCRIX reads the records that SOCs already keep (alerts, cases, workflow steps, escalations, asset lists), finds where security operations are weak or silent, and explains each weakness in plain words, with the exact rows behind the number.
+
+It is **not** a SOC or SIEM. It does no real-time monitoring or collection and needs no external AI. It runs fully offline and air-gapped, on one laptop.
+
+## Quick start (about 1 minute)
+
+```bash
+python3 -m venv .venv && source .venv/bin/activate      # Python 3.11–3.13
+pip install -e ".[dev]"
+socrix demo          # synthetic data -> ingest -> score -> validation report
+socrix serve         # open http://127.0.0.1:8157
+socrix export        # optional: one self-contained HTML report in data/socrix_report.html
+pytest -q            # 60 tests
+```
+
+Set your own pseudonymisation key before ingesting anything real: `export SOCRIX_PSEUDONYM_KEY=...` (never commit it).
+
+## What you see
+
+| Level | Screen | Answers |
+|---|---|---|
+| D0 | Overview heatmap | Which entities should NCIIPC look at first, and in which capability areas? |
+| D1 | Entity page | What exactly is wrong here, in one sentence per finding? How sure is the ranking? |
+| D2 | Indicator page | How does this entity compare with its peers? Is it getting better or worse? |
+| D3 | Evidence table | Which alerts, cases, assets or rows make up the number? |
+| D4 | Review pack | Which 20 cases should an auditor open (80% targeted, 20% random control)? CSV export. |
+| D5 | Controls | Which detectors' alerts are handled worst? |
+| D6 | Case timeline | Alert → acknowledge → … → close, with the case note |
+| D7 | Lineage | Submission, file, row number, SHA-256 receipt, audit-chain status |
+
+## How it works
+
+```
+submissions (CSV/JSON, any vendor dialect)
+  → intake: SHA-256 receipt · dialect mapping · validation · reject log · HMAC pseudonyms · referential integrity
+  → DuckDB evidence store (every row keeps submission_id, source_file, source_row)
+  → 12 indicators (execution gaps, negative space, workload) mapped to the brief's 8 capability areas
+  → scoring: Wilson lower bound · modified z vs peers (NIST, 3.5 ↦ concern 50) · policy rules · power mean p=3
+  → findings (concern ≥ 50) · deterministic explanations · review packs · uncertainty (rank ranges)
+  → hash-chained audit log · API · offline dashboard · static report
+```
+
+The "why" of every threshold is in `socrix/config.py`, and every indicator's definition is in `socrix/catalogue.yaml`. The full method is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+## Validation
+
+`socrix demo` plants 12 known weaknesses in 16 synthetic entities (8 Power in the canonical format, 8 BFSI in a second vendor dialect) over 3 months, with 5 entities kept clean. The detection code never reads the ground truth; only `socrix bench` does, after scoring.
+
+- Default seed (26157): 34/34 planted weaknesses found, 0 false positives, 0 findings on clean entities.
+- 10 other seeds (`python scripts/seed_sweep.py 1 2 … 10`): recall 336/340 = 98.8%, 0 false positives. All 4 misses had too little evidence, e.g. 1 of 9 critical true positives not escalated.
+- Every number was re-derived by an independent re-implementation: 576/576 rows match. Detection-limit curves, 0 false positives at every plant strength, 0 axe accessibility violations, and a 48-entity scale test are in docs/VALIDATION.md §5.
+
+This is synthetic data, so it shows the engine finds what it is designed to find without crying wolf. It is **not** evidence of accuracy on real SOC data. Details and the list of issues found and fixed during the build are in [docs/VALIDATION.md](docs/VALIDATION.md).
+
+## Real data
+
+- **Never** use real CSE or employer SOC data. It is confidential critical-infrastructure information.
+- The public **Microsoft GUIDE** dataset (CDLA-Permissive-2.0) can be converted with `python -m socrix.adapters.guide GUIDE_Train.csv`. See the docstring for the download steps and the leakage warning. GUIDE has no workflow or asset records, so only part of the catalogue can be assessed; the rest shows as "insufficient evidence", never as zero.
+
+## Repository map
+
+```
+socrix/            engine: config, schema, simsoc, intake, audit, attack, indicators, scoring, prioritise, pipeline,
+                   benchmark, api, cli, catalogue.yaml, web/ (offline dashboard), adapters/guide.py
+data/reference/    MITRE ATT&CK Enterprise v19.2 reference (derived offline from the official STIX bundle)
+scripts/           build_attack_ref.py (rebuild the reference), seed_sweep.py (robustness), dose_worker.py (detection limits), ui_audit.py (axe + UI checks)
+tests/             60 tests (stats, intake, audit tamper, engine regressions, API, GUIDE adapter, static export)
+docs/              ARCHITECTURE.md, VALIDATION.md, CLAUDE_CODE_PROMPTS.md
+```
+
+## Licence and data notes
+
+MITRE ATT&CK® is used under MITRE's terms of use; the reference file is derived from the official STIX bundle, v19.2. All demo data is synthetic (SimSOC, seed 26157).
