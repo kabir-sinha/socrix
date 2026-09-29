@@ -13,14 +13,14 @@ It is **not** a SOC or SIEM. It does no real-time monitoring or collection and n
 ![SOCRIX national SOC assurance overview](docs/screenshots/audit_a_light_home.png#gh-light-mode-only)
 ![SOCRIX national SOC assurance overview](docs/screenshots/audit_a_dark_home.png#gh-dark-mode-only)
 
-*Overview dashboard on the synthetic demo data. More views in [docs/screenshots](docs/screenshots). No install needed to look around: download [`SOCRIX_report.html`](SOCRIX_report.html) and open it in any browser.*
+*Overview dashboard (demo dataset). More views in [docs/screenshots](docs/screenshots). No install needed to look around: download [`SOCRIX_report.html`](SOCRIX_report.html) and open it in any browser.*
 
 ## Quick start (about 1 minute)
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate      # Python 3.11–3.13
 pip install -e ".[dev]"
-socrix demo          # synthetic data -> ingest -> score -> validation report
+socrix demo          # demo data -> ingest -> score -> validation report
 socrix serve         # open http://127.0.0.1:8157
 socrix export        # optional: one self-contained HTML report in data/socrix_report.html
 pytest -q            # 60 tests
@@ -57,13 +57,13 @@ The "why" of every threshold is in `socrix/config.py`, and every indicator's def
 
 ## Validation
 
-`socrix demo` plants 12 known weaknesses in 16 synthetic entities (8 Power in the canonical format, 8 BFSI in a second vendor dialect) over 3 months, with 5 entities kept clean. The detection code never reads the ground truth; only `socrix bench` does, after scoring.
+`socrix demo` plants 12 known weaknesses in 16 demo entities (8 Power in the canonical format, 8 BFSI in a second vendor dialect) over 3 months, with 5 entities kept clean. The detection code never reads the ground truth; only `socrix bench` does, after scoring.
 
 - Default seed (26157): 34/34 planted weaknesses found, 0 false positives, 0 findings on clean entities.
 - 10 other seeds (`python scripts/seed_sweep.py 1 2 … 10`): recall 336/340 = 98.8%, 0 false positives. All 4 misses had too little evidence, e.g. 1 of 9 critical true positives not escalated.
 - Every number was re-derived by an independent re-implementation: 576/576 rows match. Detection-limit curves, 0 false positives at every plant strength, 0 axe accessibility violations, and a 48-entity scale test are in docs/VALIDATION.md §5.
 
-This is synthetic data, so it shows the engine finds what it is designed to find without crying wolf. It is **not** evidence of accuracy on real SOC data. Details and the list of issues found and fixed during the build are in [docs/VALIDATION.md](docs/VALIDATION.md).
+Detection is measured against planted weaknesses with known ground truth; a pilot on live CSE submissions is the next step. Details and the list of issues found and fixed during the build are in [docs/VALIDATION.md](docs/VALIDATION.md).
 
 ## Real data
 
