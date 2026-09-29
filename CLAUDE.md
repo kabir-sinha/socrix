@@ -33,4 +33,4 @@ same commit, and say so — never silently edit the independent script to make a
 
 ## Layout
 `socrix/` config · schema · simsoc · intake · audit · attack · indicators · scoring · prioritise · pipeline · benchmark · api · cli · web/ · adapters/
-`docs/` ARCHITECTURE.md (2-page architecture deliverable) · VALIDATION.md · CLAUDE_CODE_PROMPTS.md
+`docs/` ARCHITECTURE.md (2-page architecture deliverable) · VALIDATION.md
