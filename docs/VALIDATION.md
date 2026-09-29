@@ -108,7 +108,17 @@ Below-threshold signals (concern 35–49) are shown on each entity page as "Near
 ### 5.4 Security, robustness, scale
 - **XSS:** HTML/JS payloads were placed in a case note, a detector name and an asset ID of a real submission. They were not executed on the live server or in the static report; they display as text.
 - **Hostile inputs:** SQL-injection-shaped paths and parameters, path traversal and unbounded paging all return 404/422, and the tables stay intact. POST and DELETE return 405. The web assets make no external requests. All covered by tests.
-- **Scale:** 48 entities, 1,27,452 alerts, 5,25,287 workflow rows, 92,160 asset rows; score 26.6 s; peak memory 0.85 GB (run 29 Sep 2026 via SOCRIX_ENTITIES_PER_SECTOR=24). Ingest 12.5s; score was 47.4s before the performance fix. Still 34/34 detected with **0 false positives across 43 additional clean entities**. At 16 entities, scoring takes 7.5s (was 11.3s).
+- **Scale:** 48 entities, 1,27,452 alerts, 5,25,287 workflow rows, 92,160 asset rows (run 29 Sep 2026 via SOCRIX_ENTITIES_PER_SECTOR=24). Still 34/34 detected with **0 false positives across 43 additional clean entities**.
+  - Cloud workspace, 2 CPUs: 26.6 s scoring for 48 entities (47.4 s before the performance fix); ingest 12.5 s; peak memory 0.85 GB. At 16 entities, scoring takes 7.5 s (was 11.3 s).
+  - MacBook Pro (Apple M5), 29 Sep 2026: 8.4 s scoring for 48 entities; peak memory under 1 GB for the full run (generate + ingest + score). Repeat runs of the score step: 8.6, 8.6, 8.7 s. Peak resident memory: 0.999 GB for the full `socrix demo` run (generate + ingest + score + bench); 0.89 GB for the score step alone.
+  - MacBook Pro (Apple M5), 29 Sep 2026, standard 16-entity demo: score step 2.3 s (best of 3; all three runs 2.3 s), peak memory 0.47 GB; full `socrix demo` 4.9 s wall clock.
+  - Commands, each in a fresh `SOCRIX_HOME` with `data/reference` copied in (never `./data`):
+    ```bash
+    SOCRIX_HOME=$H SOCRIX_ENTITIES_PER_SECTOR=24 SOCRIX_PSEUDONYM_KEY=timing /usr/bin/time -l socrix demo    # 48 entities: full run + peak RSS
+    SOCRIX_HOME=$H SOCRIX_ENTITIES_PER_SECTOR=24 SOCRIX_PSEUDONYM_KEY=timing /usr/bin/time -l socrix score   # 48 entities: score step, repeated 3×
+    SOCRIX_HOME=$H SOCRIX_PSEUDONYM_KEY=timing /usr/bin/time -l socrix score                                  # 16 entities: score step, best of 3
+    ```
+    The scoring time is the one `socrix score` prints ("Scored N entities … in X s"); peak memory is `maximum resident set size` from `/usr/bin/time -l`.
 
 ### 5.5 Specificity total
 Specificity total: 0 false positives in 24 runs (1 default seed, 10-seed sweep, 12 sensitivity runs, 1 3×-scale run)

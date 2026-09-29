@@ -60,7 +60,7 @@ This gives SOCRIX five rules:
 ## 5. Security and deployment
 - Localhost bind by default; read-only API; no outbound calls; no CDN; no AI model.
 - The pseudonym key comes from `SOCRIX_PSEUDONYM_KEY` (held by NCIIPC), never from the repo.
-- Everything runs on one laptop: 41k alerts and 166k workflow rows score in about 7.5 seconds; 3× that volume (48 CSEs) in about 27 seconds at 0.85 GB peak memory.
+- Everything runs on one laptop. On a MacBook Pro (Apple M5), 41k alerts and 166k workflow rows score in 2.3 seconds; 3× that volume (48 CSEs) scores in under 9 seconds, with peak memory under 1 GB for the full run. On a 2-CPU cloud workspace the same runs take about 7.5 and 27 seconds (docs/VALIDATION.md §5.4).
 
 ## 6. Roadmap (post-MVP)
 - Remaining catalogue items: Cyber Resilience indicators (backup/restore drills, DR tests) and exercise-evidence ingestion.

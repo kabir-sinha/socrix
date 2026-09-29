@@ -24,7 +24,7 @@ const TRUST = [
   ["Independent re-implementation", "576 of 576 figures match exactly."],
   ["Robustness", "98.8% detection across 10 independent test datasets (336/340), 0 false alarms."],
   ["Specificity", "0 false alarms across 24 test runs (default seed, 10-seed sweep, 12 sensitivity runs, 3× scale test), including 43 additional clean entities at 3× scale."],
-  ["Scale", "1,27,452 alerts and 5,25,287 workflow records (48 entities) scored in about 27 seconds on one laptop; peak memory 0.85 GB."],
+  ["Scale", "1,27,452 alerts and 5,25,287 workflow records (48 entities) scored in under 9 seconds on a laptop; peak memory under 1 GB."],
   ["Tamper-evident", "Hash-chained audit log, SHA-256 receipt for every submitted file, lineage to the source row."],
   ["Privacy", "Analyst identities pseudonymised (keyed HMAC-SHA256); fully offline, with no external services or AI."],
   ["Accessibility", "WCAG 2 A/AA with 0 automated (axe-core) violations, light and dark."],
