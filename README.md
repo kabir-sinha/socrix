@@ -1,5 +1,6 @@
 # SOCRIX
 
+[![Tests](https://github.com/kabir-sinha/socrix/actions/workflows/tests.yml/badge.svg)](https://github.com/kabir-sinha/socrix/actions/workflows/tests.yml)
 ![Python](https://img.shields.io/badge/Python-3.11%E2%80%933.13-3776AB?logo=python&logoColor=white)
 ![Offline](https://img.shields.io/badge/runs-fully%20offline%20%C2%B7%20air--gapped-2ea44f)
 ![SIH 2026](https://img.shields.io/badge/SIH%202026-SIH26157-orange)
@@ -69,6 +70,18 @@ Detection is measured against planted weaknesses with known ground truth; a pilo
 
 - **Never** use real CSE or employer SOC data. It is confidential critical-infrastructure information.
 - The public **Microsoft GUIDE** dataset (CDLA-Permissive-2.0) can be converted with `python -m socrix.adapters.guide GUIDE_Train.csv`. See the docstring for the download steps and the leakage warning. GUIDE has no workflow or asset records, so only part of the catalogue can be assessed; the rest shows as "insufficient evidence", never as zero.
+
+## Design decisions and trade-offs
+
+| Decision | Why | Trade-off |
+|---|---|---|
+| **Rules and statistics, no machine-learning model deciding findings** | Every finding has to be explainable to an auditor and reproducible offline, with no external AI. | Subtler patterns a model might catch are left for a later "exploratory" lane that never raises findings on its own. |
+| **Wilson 95% lower bound for every rate** | A SOC with 3 cases cannot look worse than one with 3,000 just from a small sample. | Conservative: a genuinely weak SOC with little data can stay under the finding line. |
+| **Modified z-score against same-sector, same-size peers** (leave-one-out, MAD floor) | Uses the NIST outlier line (3.5), which is robust to the peer group's own outliers; the floor stops sampling noise from being called a weakness. | Needs enough comparable peers; otherwise it falls back to all sectors, then the entity's own history. |
+| **Power mean (p = 3) to combine indicators** | One serious weakness is not averaged away by good scores elsewhere (the compensability problem in OECD/JRC composite-indicator guidance). | Scores are less forgiving than a plain average, by design. |
+| **Missing is not zero; each weakness counted once** | Too little data shows as "insufficient evidence", and missing workflow records are a single negative-space indicator, not also execution failures. | Coverage shows 7 of the 8 capability areas, because Cyber Resilience has no indicator yet. |
+| **DuckDB evidence store with lineage, hash-chained audit log, HMAC pseudonyms** | Every number links back to the file and row it came from, tampering is detectable (`socrix verify`), and identities are stable within a CSE but unlinkable across CSEs. | The pseudonym key must be held outside the repo (`SOCRIX_PSEUDONYM_KEY`). |
+| **Blind validation on planted weaknesses, plus an independent re-implementation** | Detection code never reads the ground truth; 576/576 re-derived rows match. | Measured on synthetic submissions; a pilot on live CSE data is the next step. |
 
 ## Repository map
 
