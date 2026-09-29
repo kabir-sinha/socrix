@@ -8,7 +8,8 @@ BASE = os.environ.get("SOCRIX_URL", "http://127.0.0.1:8157/")
 AXE_PATH = sys.argv[1] if len(sys.argv) > 1 else "node_modules/axe-core/axe.min.js"
 AXE = open(AXE_PATH).read()
 routes = ["#/", "#/e/PWR-03", "#/e/BFS-06", "#/e/PWR-03/i/EG-01", "#/e/BFS-04/i/NS-02", "#/e/PWR-05/i/NS-01",
-          "#/case/PWR-03-2026-08-AL00011", "#/validation", "#/method"]
+          "#/case/PWR-03-2026-08-AL00011", "#/validation", "#/method",
+          "#/entities", "#/entities?sector=BFSI&f=1", "#/indicators", "#/review-packs/PWR-03", "#/audit", "#/about"]
 report = {"errors": [], "axe": {}, "overflow": [], "keyboard": None}
 with sync_playwright() as p:
     b = p.chromium.launch()
@@ -33,7 +34,7 @@ with sync_playwright() as p:
             pg.close()
     # keyboard: tab to first entity row and press Enter
     pg = b.new_page(viewport={"width": 1300, "height": 900}); pg.goto(BASE + "#/"); pg.wait_for_timeout(700)
-    for _ in range(12):
+    for _ in range(80):   # skip link, sidebar, quick search, theme toggle, band links and the queue come before the first row
         pg.keyboard.press("Tab")
         if pg.evaluate("document.activeElement && document.activeElement.tagName") == "TR": break
     pg.keyboard.press("Enter"); pg.wait_for_timeout(700); report["keyboard"] = pg.url

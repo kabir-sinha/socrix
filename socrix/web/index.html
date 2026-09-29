@@ -1,24 +1,49 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-IN">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SOCRIX</title>
+<meta name="color-scheme" content="light dark">
+<title>SOCRIX — SIH26157</title>
+<script>/* apply the saved theme before first paint (no flash of the wrong theme) */
+try { var t = localStorage.getItem("socrix-theme"); if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t); } catch (e) {}</script>
 <link rel="stylesheet" href="static/style.css">
 <!--SOCRIX_STATIC_CSS-->
 </head>
 <body>
-<header class="top">
-  <a class="brand" href="#/"><span class="mark" aria-hidden="true"></span>SOCRIX</a>
-  <nav>
-    <a href="#/" data-nav="overview">Overview</a>
-    <a href="#/validation" data-nav="validation">Validation</a>
-    <a href="#/method" data-nav="method">Method</a>
-  </nav>
-  <span class="tag" id="runtag"></span>
-</header>
-<main id="app" aria-live="polite"><p class="muted pad">Loading…</p></main>
-<footer class="foot">Offline · read-only · synthetic demonstration data (SimSOC) · no external services</footer>
+<a class="skip" href="#main">Skip to content</a>
+<div class="idstrip" id="idstrip" role="region" aria-label="Event and team"></div>
+<div class="shell">
+  <aside class="side" id="sidebar" aria-label="Site">
+    <div class="side-in">
+      <div class="brand" id="brand"></div>
+      <nav aria-label="Primary" id="nav"></nav>
+      <div class="meta" id="sidemeta"></div>
+    </div>
+  </aside>
+  <div class="scrim" id="scrim"></div>
+  <div class="content">
+    <header class="band">
+      <div class="wrap">
+        <div class="bandbar">
+          <button class="iconbtn" id="menuBtn" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+          <div class="qs" id="qs">
+            <label for="qsInput" class="sr-only">Go to entity or alert ID</label>
+            <input id="qsInput" type="text" role="combobox" aria-expanded="false" aria-controls="qsList" aria-autocomplete="list" autocomplete="off" spellcheck="false" placeholder="Go to entity or alert ID">
+            <kbd aria-hidden="true">/</kbd>
+            <ul id="qsList" role="listbox" aria-label="Matches" hidden></ul>
+          </div>
+          <span class="spacer"></span>
+          <button class="iconbtn" id="themeBtn" type="button" aria-label="Switch to dark theme"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg><span class="txt">Dark</span></button>
+        </div>
+        <div class="bandhead" id="band"></div>
+      </div>
+    </header>
+    <main id="main" tabindex="-1"><div class="wrap" id="app"></div></main>
+    <div class="sr-only" id="announce" aria-live="polite"></div>
+    <footer class="foot" id="foot"></footer>
+  </div>
+</div>
 <!--SOCRIX_STATIC_DATA-->
 <script src="static/app.js"></script>
 <!--SOCRIX_STATIC_JS-->
