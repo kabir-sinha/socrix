@@ -108,7 +108,10 @@ Below-threshold signals (concern 35–49) are shown on each entity page as "Near
 ### 5.4 Security, robustness, scale
 - **XSS:** HTML/JS payloads were placed in a case note, a detector name and an asset ID of a real submission. They were not executed on the live server or in the static report; they display as text.
 - **Hostile inputs:** SQL-injection-shaped paths and parameters, path traversal and unbounded paging all return 404/422, and the tables stay intact. POST and DELETE return 405. The web assets make no external requests. All covered by tests.
-- **Scale:** 48 entities (127k alerts, 525k workflow rows, 92k asset rows). Ingest 12.5s; score 26.6s (was 47.4s); peak memory 0.85 GB. Still 34/34 detected with **0 false positives across 43 additional clean entities**. At 16 entities, scoring takes 7.5s (was 11.3s).
+- **Scale:** 48 entities, 1,27,452 alerts, 5,25,287 workflow rows, 92,160 asset rows; score 26.6 s; peak memory 0.85 GB (run 29 Sep 2026 via SOCRIX_ENTITIES_PER_SECTOR=24). Ingest 12.5s; score was 47.4s before the performance fix. Still 34/34 detected with **0 false positives across 43 additional clean entities**. At 16 entities, scoring takes 7.5s (was 11.3s).
+
+### 5.5 Specificity total
+Specificity total: 0 false positives in 24 runs (1 default seed, 10-seed sweep, 12 sensitivity runs, 1 3×-scale run)
 
 ## 6. How to re-run everything
 ```bash

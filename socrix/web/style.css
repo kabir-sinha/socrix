@@ -69,6 +69,7 @@ p:last-child { margin-bottom: 0; }
 .label { font-size: 12px; line-height: 16px; font-weight: 500; }
 .num, td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .tnum { font-variant-numeric: tabular-nums; }
+.nw { white-space: nowrap; }
 .id { font-family: var(--mono); font-weight: 400; white-space: nowrap; }     /* identifiers only: alert/asset/ATT&CK IDs, hashes, codes */
 code, .formula { font-family: var(--mono); font-size: 14px; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -409,6 +410,9 @@ table.queue td:nth-child(2), table.queue td:last-child { white-space: nowrap; }
   .seg { flex-wrap: wrap; }
   .key .kstep { min-width: 56px; }
   table.wide { min-width: 640px; }
+  table.dose th, table.dose td { padding: 8px 4px; }
+  table.dose .chip { margin: 0; padding: 2px 4px; }
+  .inlinebar { width: 48px; }
   table.sector th { white-space: normal; }
   table.sector th, table.sector td { padding: 12px 8px; }
   .caps { grid-template-columns: 1fr 1fr; gap: 8px; }

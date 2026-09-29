@@ -24,14 +24,14 @@ const TRUST = [
   ["Independent re-implementation", "576 of 576 figures match exactly."],
   ["Robustness", "98.8% detection across 10 independent test datasets (336/340), 0 false alarms."],
   ["Specificity", "0 false alarms across 24 test runs (default seed, 10-seed sweep, 12 sensitivity runs, 3× scale test), including 43 additional clean entities at 3× scale."],
-  ["Scale", "127k alerts and 525k workflow records (48 entities) scored in about 27 seconds on one laptop; peak memory 0.85 GB."],
+  ["Scale", "1,27,452 alerts and 5,25,287 workflow records (48 entities) scored in about 27 seconds on one laptop; peak memory 0.85 GB."],
   ["Tamper-evident", "Hash-chained audit log, SHA-256 receipt for every submitted file, lineage to the source row."],
   ["Privacy", "Analyst identities pseudonymised (keyed HMAC-SHA256); fully offline, with no external services or AI."],
   ["Accessibility", "WCAG 2 A/AA with 0 automated (axe-core) violations, light and dark."],
   ["Security-tested", "Injection and path-traversal attempts rejected; read-only API."],
   ["Standards", "MITRE ATT&CK Enterprise v19.2 (15 tactics); 12 indicators across 7 capability areas; 61 automated tests."],
 ];
-const TRUST_SRC = "Source: docs/VALIDATION.md (verification log, 29 Sep 2026).";
+const TRUST_SRC = "Source: SOCRIX validation log, 29 Sep 2026";
 
 /* ---------- formatters: every number on screen goes through one of these ---------- */
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -152,13 +152,13 @@ function renderFooter() {
   $("foot").innerHTML = `<div class="wrap"><div class="cols">
     <div><h2 id="f1">About</h2><p>${esc(SITE.product)} (${esc(SITE.longName)}). ${esc(SITE.tagline)}.
       Built for ${esc(SITE.psId)}, “${esc(SITE.psTitle)}”, ${esc(SITE.psOwner)}.</p></div>
-    <div><h2 id="f2">Team</h2><ul><li>© 2026 ${esc(SITE.team)}</li>${SITE.teamId ? `<li>Team ID ${esc(SITE.teamId)}</li>` : ""}
+    <div><h2 id="f2">Team</h2><ul><li>${esc(SITE.team)}</li>${SITE.teamId ? `<li>Team ID ${esc(SITE.teamId)}</li>` : ""}
       <li>${esc(SITE.institution)}</li><li>${esc(SITE.event)}</li></ul></div>
     <div><h2 id="f3">Data &amp; method</h2><ul><li>${esc(SITE.data)}</li>
       <li>MITRE ATT&amp;CK Enterprise v${esc(m ? m.attack : "19.2")}</li>
       <li>Engine ${esc(m ? m.engine : "–")} · catalogue ${esc(m ? m.catalogue_version : "–")}</li>
       <li>Data as of ${esc(m ? fmtPeriod(m.latest) : "–")}</li></ul></div></div>
-    <p class="bottom">${esc(SITE.disclosure)}</p></div>`;
+    <p class="bottom">© 2026 ${esc(SITE.team)} · ${esc(SITE.disclosure)}</p></div>`;
 }
 function setNav(key) {
   document.querySelectorAll("#nav a").forEach((a) => (a.dataset.nav === key ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")));
@@ -702,14 +702,14 @@ async function viewValidation() {
     <section class="card" aria-labelledby="wth"><h2 id="wth">Why these results can be trusted</h2>${trustList(TRUST)}</section>
     ${b ? `<div class="grid g2 section">
       <section class="card" aria-labelledby="pah"><h2 id="pah">Per archetype</h2><div class="scroll"><table><caption class="sr-only">Detection per planted archetype</caption><thead><tr><th scope="col">Planted weakness</th><th scope="col">Detected</th></tr></thead><tbody>
-      ${b.archetypes.slice().sort((x, y) => x.archetype.localeCompare(y.archetype, "en", { numeric: true })).map((a) => `<tr><td>${esc(a.archetype)}</td><td><span class="inlinebar" aria-hidden="true"><i style="width:${a.expected ? (100 * a.detected) / a.expected : 0}%"></i></span><span class="tnum">${a.detected}/${a.expected}</span></td></tr>`).join("")}</tbody></table></div>
+      ${b.archetypes.slice().sort((x, y) => x.archetype.localeCompare(y.archetype, "en", { numeric: true })).map((a) => `<tr><td>${esc(a.archetype)}</td><td class="nw"><span class="inlinebar" aria-hidden="true"><i style="width:${a.expected ? (100 * a.detected) / a.expected : 0}%"></i></span><span class="tnum">${a.detected}/${a.expected}</span></td></tr>`).join("")}</tbody></table></div>
       ${b.missed_list.length ? `<p class="note section">Missed: ${b.missed_list.map((k) => esc(k.join("/"))).join(", ")}</p>` : ""}
       ${b.related_list.length ? `<details class="section"><summary>Related co-findings (${b.related_list.length})</summary><div>${b.related_list.map((k) => esc(k.join(" / "))).join(", ")}</div></details>` : ""}</section>
       <section class="card" aria-labelledby="dlh"><h2 id="dlh">Sensitivity profile</h2>
         <p class="note">Detection as planted signals are weakened to 15–75% strength — zero false alarms at every level. 3 test datasets per strength; cells show planted weaknesses detected.</p>
-        <div class="scroll"><table><caption class="sr-only">Detection by plant strength</caption><thead><tr><th scope="col">Archetype</th><th scope="col" class="num">15%</th><th scope="col" class="num">25%</th><th scope="col" class="num">50%</th><th scope="col" class="num">75%</th></tr></thead><tbody>
+        <div class="scroll"><table class="dose"><caption class="sr-only">Detection by plant strength</caption><thead><tr><th scope="col">Archetype</th><th scope="col" class="num">15%</th><th scope="col" class="num">25%</th><th scope="col" class="num">50%</th><th scope="col" class="num">75%</th></tr></thead><tbody>
         ${DOSE.map(([a, ...v]) => `<tr><td>${esc(a)}</td>${v.map(doseCell).join("")}</tr>`).join("")}</tbody></table></div>
-        <p class="note section">Source: docs/VALIDATION.md §5.2 (static content, not served by the API).</p></section>
+        <p class="src section">Source: SOCRIX validation log, 29 Sep 2026</p></section>
     </div>` : `<div class="notice"><h2>No benchmark run yet</h2><p>Run <code>socrix bench</code> to grade the last score run against the planted ground truth.</p></div>`}
     <div class="grid g2 section">
       <section class="card" aria-labelledby="rrh"><h2 id="rrh">Rejected rows (never silently dropped)</h2><div class="scroll"><table><caption class="sr-only">Rejected rows by reason</caption><thead><tr><th scope="col">Reason</th><th scope="col" class="num">Rows</th></tr></thead><tbody>
