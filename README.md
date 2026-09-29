@@ -11,6 +11,11 @@ SOCRIX reads the records that SOCs already keep (alerts, cases, workflow steps, 
 
 It is **not** a SOC or SIEM. It does no real-time monitoring or collection and needs no external AI. It runs fully offline and air-gapped, on one laptop.
 
+![SOCRIX national SOC assurance overview](docs/screenshots/audit_a_light_home.png#gh-light-mode-only)
+![SOCRIX national SOC assurance overview](docs/screenshots/audit_a_dark_home.png#gh-dark-mode-only)
+
+*Overview dashboard on the synthetic demo data. More views in [docs/screenshots](docs/screenshots). No install needed to look around: download [`SOCRIX_report.html`](SOCRIX_report.html) and open it in any browser.*
+
 ## Quick start (about 1 minute)
 
 ```bash
@@ -74,7 +79,8 @@ socrix/            engine: config, schema, simsoc, intake, audit, attack, indica
 data/reference/    MITRE ATT&CK Enterprise v19.2 reference (derived offline from the official STIX bundle)
 scripts/           build_attack_ref.py (rebuild the reference), seed_sweep.py (robustness), dose_worker.py (detection limits), ui_audit.py (axe + UI checks)
 tests/             60 tests (stats, intake, audit tamper, engine regressions, API, GUIDE adapter, static export)
-docs/              ARCHITECTURE.md, VALIDATION.md, sample_report.html (pre-built `socrix export` output), screenshots/
+docs/              ARCHITECTURE.md, VALIDATION.md, screenshots/, ui/ (UI_CHANGES.md, before/after screenshots)
+SOCRIX_report.html pre-built `socrix export` output (single self-contained file, opens offline in any browser)
 ```
 
 ## Team
