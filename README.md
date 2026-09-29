@@ -1,5 +1,11 @@
 # SOCRIX
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+![Python](https://img.shields.io/badge/Python-3.11%E2%80%933.13-3776AB?logo=python&logoColor=white)
+![Offline](https://img.shields.io/badge/runs-fully%20offline%20%C2%B7%20air--gapped-2ea44f)
+![SIH 2026](https://img.shields.io/badge/SIH%202026-SIH26157-orange)
+
+
 **SOC assurance analytics for NCIIPC (SIH 2026 · problem statement SIH26157).**
 SOCRIX reads the records that SOCs already keep (alerts, cases, workflow steps, escalations, asset lists), finds where security operations are weak or silent, and explains each weakness in plain words, with the exact rows behind the number.
 
@@ -68,9 +74,25 @@ socrix/            engine: config, schema, simsoc, intake, audit, attack, indica
 data/reference/    MITRE ATT&CK Enterprise v19.2 reference (derived offline from the official STIX bundle)
 scripts/           build_attack_ref.py (rebuild the reference), seed_sweep.py (robustness), dose_worker.py (detection limits), ui_audit.py (axe + UI checks)
 tests/             60 tests (stats, intake, audit tamper, engine regressions, API, GUIDE adapter, static export)
-docs/              ARCHITECTURE.md, VALIDATION.md, CLAUDE_CODE_PROMPTS.md
+docs/              ARCHITECTURE.md, VALIDATION.md, sample_report.html (pre-built `socrix export` output), screenshots/
 ```
+
+## Team
+
+Built by **Team AIRIX**, Bennett University, for Smart India Hackathon 2026 (problem statement SIH26157, NTRO/NCIIPC). Team lead: [Kabir Sinha](https://github.com/kabir-sinha).
+
+Sister project: [AIRIX](https://github.com/kabir-sinha/airix), a real-time airfare price index for MoSPI (SIH26056).
+
+## Security
+
+Please report vulnerabilities privately — see [SECURITY.md](SECURITY.md). Do not open public issues for security problems, and never attach real SOC data to an issue or pull request.
 
 ## Licence and data notes
 
-MITRE ATT&CK® is used under MITRE's terms of use; the reference file is derived from the official STIX bundle, v19.2. All demo data is synthetic (SimSOC, seed 26157).
+Code is released under the [MIT License](LICENSE). Third-party material keeps its own terms — see [NOTICE](NOTICE):
+
+- MITRE ATT&CK® is used under MITRE's terms of use; the reference file is derived from the official STIX bundle, v19.2.
+- The bundled IBM Plex Mono and Noto Sans fonts are under the SIL Open Font License 1.1.
+- The Microsoft GUIDE dataset (CDLA-Permissive-2.0) is not included; only a converter is.
+
+All demo data is synthetic (SimSOC, seed 26157).
