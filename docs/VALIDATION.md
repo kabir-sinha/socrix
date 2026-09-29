@@ -58,6 +58,7 @@ Each fix is locked in by a regression test in `tests/`.
 | 27 | `offset=-5` returned 500 | No bound on the query parameter | `ge=0`, `ge=1` / `le=500` | `test_hostile_inputs_are_rejected` |
 | 28 | Unknown entity, indicator or period on the evidence endpoint returned an empty 200 | No validation | 404s | same |
 | 29 | Scoring cost grew with entities² (3× data took 4.3× longer) | Tables re-filtered per entity; a 127k-element set rebuilt 144×; per-row peer lookups over the whole table | Tables split once; set built once; EG-05 vectorised; peer and history lookups indexed. Output identical to the independent calculation | §5.4 |
+| 30 | `test_web_assets_make_no_external_requests` crashed with `IsADirectoryError` once `web/fonts/` existed | The test read every entry of `web/` as text, non-recursively | Walks `web/` recursively and checks every `.html/.css/.js` file; binary fonts and licence texts skipped | same test |
 
 ## 5. Verification pass 2 (29 Sep 2026)
 
@@ -98,7 +99,7 @@ Below-threshold signals (concern 35–49) are shown on each entity page as "Near
 **Finding-threshold sensitivity** (all periods): 45 findings at a threshold of 40, 43 at 50 (the default), 42 at 55 and 41 at 70. Clean entities: 1 at 40 or 45, 0 at 50 and above.
 
 ### 5.3 UI, colour, accessibility
-- **axe-core 4.13:** WCAG 2 A/AA plus best practice on 9 routes × light/dark → **0 violations**.
+- **axe-core 4.13:** WCAG 2 A/AA plus best practice on 9 routes × light/dark → **0 violations**. Re-run after the UI redesign (`docs/ui/UI_CHANGES.md`) on 16 routes × light/dark → **0 violations**.
 - **No page errors or console errors;** no horizontal overflow at 390px.
 - **Keyboard:** Tab reaches the rows and Enter drills down.
 - **Concern scale:** checked with the dataviz validator (single hue, monotone lightness, adjacent ΔL ≥ 0.06). The low end deliberately recedes on the heatmap.

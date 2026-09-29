@@ -365,7 +365,8 @@ details > div { color: var(--muted); }
   .side .closebtn { display: inline-flex; }
   .idstrip { padding: 8px 16px; }
   .bandbar { gap: 8px; padding-top: 12px; }
-  .bandbar .qs { flex: 1; }
+  .bandbar .qs { flex: 1; width: auto; }
+  .bandbar .spacer { display: none; }
   .qs kbd { display: none; }
   .qs input { padding-right: 12px; }
   #themeBtn .txt { display: none; }
