@@ -255,3 +255,34 @@ Indicator-specific units are unchanged on purpose (e.g. NS-05 and WL-01 medians 
 - Each `socrix export` adds an audit-log entry, so the “audit chain entries” count rose from 2 to 5 during this work (chain intact).
 - `SOCRIX_report.html` at the repo root was regenerated with the new UI.
 - Chart points are focusable (`role="img"` inside a labelled `role="group"`), which adds tab stops on indicator pages; this is the price of focus tooltips.
+
+## Messaging refinement (29 Sep 2026)
+Strengths first, one disclosure. UI and `scripts/ui_audit.py` only; no engine, API or number changes.
+
+- **One disclosure line** at the bottom of the site footer (12px muted), also used in the print footer and the static export:
+  “Demonstration dataset: SimSOC (seed 26157) · Built for SIH 2026 evaluation — not an official NTRO, NCIIPC or Government of India product.”
+  Footer “Data & method” reads “Demonstration dataset (SimSOC)”. Removed from bands, sidebar (“Offline · Read-only · Air-gapped”),
+  Validation description, About (the honesty card and the Team-card note) and card notes. The About band's “Status: Prototype” is now “Indicators: 12”.
+- **Metrics:** Overview shows “34/34 · Planted weaknesses detected” (links to Validation). No bare 100% recall or precision anywhere; the Validation KPI cards were removed because the band now holds the same figures.
+  Validation is titled “Validation & assurance” and has a new description and band stats: 34/34 detected · 0 false alarms · 576/576 figures independently matched · 0 findings on clean entities.
+  “Detection limits” became “Sensitivity profile”, with strength headers shown as 15/25/50/75%. The Abstained stat was removed, and related co-findings now appear only in their `<details>`.
+- **Strengths:** a “Why these results can be trusted” card on Validation (9 items) and on About (4 items), with a single source line.
+  Every figure comes from docs/VALIDATION.md or docs/ARCHITECTURE.md. Two wordings were changed so the claims stay exactly as documented:
+  - Scale is stated as “127k alerts and 525k workflow records (48 entities) … about 27 seconds … 0.85 GB”, because the docs don't record exact counts.
+  - “24 test runs” is shown with its breakdown (default seed + 10-seed sweep + 12 sensitivity runs + 3× scale test), because the docs don't state that total directly.
+- **Overview capabilities row:** Explainable · Traceable · Tamper-evident audit trail · Runs fully offline, with inline SVG icons.
+- **Fixes:**
+  - Cyber Resilience (no catalogue indicator) shows “Not yet covered” with a hatched track. The entity page's “n/a” has a keyboard-accessible tooltip: “Planned indicator area”, or “Insufficient evidence this period” for covered areas.
+  - The mobile “By sector” table fits: Highest SAI is hidden under 768px and the headers wrap.
+  - The priority queue is now a table with clickable rows.
+  - The skip link now focuses `<main>`. Before, it changed the URL hash to `#main`, which re-routed the page to the Overview.
+  - The About method step now says 12 indicators map to 7 of the brief's 8 areas (checked against docs/ARCHITECTURE.md).
+- **`scripts/ui_audit.py`:**
+  - No fixed sleeps. It waits for the app's `data-ready` marker, a visible `#band h1` and a rendered `#app .card`.
+  - Keyboard check: one Tab reaches the skip link, Enter moves focus to main, Tab reaches the first row (limit 20; it took 2), and Enter lands on `#/e/PWR-03`.
+  - The script exits non-zero on any failure.
+- **Verification:**
+  - pytest: 61 passed.
+  - compare.py: 0 mismatches.
+  - ui_audit: PASSED (0 axe violations across 16 routes in light and dark, no console errors, no overflow at 390px, keyboard check passed).
+  - Offline export check passes.

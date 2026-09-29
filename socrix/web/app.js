@@ -14,8 +14,24 @@ const SITE = {
   psId: "SIH26157",
   psTitle: "Supervisory Analytics Tool for SOC Assessment (SAT-SA)",
   psOwner: "NTRO / NCIIPC",
-  data: "Synthetic SimSOC data (seed 26157)",
+  data: "Demonstration dataset (SimSOC)",
+  // the one place the demonstration-data disclosure appears on screen (site footer, print footer)
+  disclosure: "Demonstration dataset: SimSOC (seed 26157) · Built for SIH 2026 evaluation — not an official NTRO, NCIIPC or Government of India product.",
 };
+
+/* ---------- verified strengths (source: docs/VALIDATION.md, docs/ARCHITECTURE.md; not served by the API) ---------- */
+const TRUST = [
+  ["Independent re-implementation", "576 of 576 figures match exactly."],
+  ["Robustness", "98.8% detection across 10 independent test datasets (336/340), 0 false alarms."],
+  ["Specificity", "0 false alarms across 24 test runs (default seed, 10-seed sweep, 12 sensitivity runs, 3× scale test), including 43 additional clean entities at 3× scale."],
+  ["Scale", "127k alerts and 525k workflow records (48 entities) scored in about 27 seconds on one laptop; peak memory 0.85 GB."],
+  ["Tamper-evident", "Hash-chained audit log, SHA-256 receipt for every submitted file, lineage to the source row."],
+  ["Privacy", "Analyst identities pseudonymised (keyed HMAC-SHA256); fully offline, with no external services or AI."],
+  ["Accessibility", "WCAG 2 A/AA with 0 automated (axe-core) violations, light and dark."],
+  ["Security-tested", "Injection and path-traversal attempts rejected; read-only API."],
+  ["Standards", "MITRE ATT&CK Enterprise v19.2 (15 tactics); 12 indicators across 7 capability areas; 61 automated tests."],
+];
+const TRUST_SRC = "Source: docs/VALIDATION.md (verification log, 29 Sep 2026).";
 
 /* ---------- formatters: every number on screen goes through one of these ---------- */
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -86,6 +102,11 @@ const ICON = {
   download: '<path d="M12 3v12M7 10l5 5 5-5M4 21h16"/>',
   copy: '<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/>',
   close: '<path d="M6 6l12 12M18 6L6 18"/>',
+  check: '<path d="M20 6L9 17l-5-5"/>',
+  explain: '<path d="M4 5h16v11H8l-4 4z"/><path d="M8 9h8M8 12h5"/>',
+  trace: '<circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M6 8.5v4a3 3 0 0 0 3 3h6.5"/>',
+  chain: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+  offline: '<rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
 };
 const icon = (k) => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICON[k]}</svg>`;
 const announce = (t) => { $("announce").textContent = t; };
@@ -103,6 +124,10 @@ const segmented = (name, label, options, value) => `<div class="seg" role="group
 const info = (id, text) => `<span class="info"><button type="button" aria-label="More information" aria-describedby="${id}">i</button><span role="tooltip" id="${id}">${esc(text)}</span></span>`;
 const concernChip = (c, label) => `<span class="chip txt ${hcls(c)}">${label ? esc(label) + " " : ""}${c == null ? "insufficient" : fmtConcern(c)}</span>`;
 const empty = (text) => `<p class="empty">${esc(text)}</p>`;
+const coveredAreas = () => new Set(Object.values(CAT || {}).map((v) => v.area));
+let tipN = 0;
+const tipWord = (word, text) => { const id = `tw${++tipN}`; return `<span class="info"><button type="button" class="tword" aria-describedby="${id}">${esc(word)}</button><span role="tooltip" id="${id}">${esc(text)}</span></span>`; };
+const trustList = (items) => `<ul class="trust">${items.map(([h, t]) => `<li>${icon("check")}<div><b>${esc(h)}</b><span>${esc(t)}</span></div></li>`).join("")}</ul><p class="src">${esc(TRUST_SRC)}</p>`;
 
 /* ---------- shell: identity strip, sidebar, band, footer ---------- */
 const NAV = [
@@ -119,7 +144,7 @@ function renderShell() {
     <button class="btn sm closebtn" type="button" id="closeNav" aria-label="Close navigation">${icon("close")}</button>`;
   $("nav").innerHTML = NAV.map(([label, items], gi) => `<div class="navgroup">${label ? `<p class="label" id="ng${gi}">${esc(label)}</p>` : ""}
     <ul${label ? ` aria-labelledby="ng${gi}"` : ""}>${items.map(([k, t, h]) => `<li><a href="${h}" data-nav="${k}">${esc(t)}</a></li>`).join("")}</ul></div>`).join("");
-  $("sidemeta").textContent = "Offline · read-only · synthetic data";
+  $("sidemeta").textContent = "Offline · Read-only · Air-gapped";
   renderFooter();
 }
 function renderFooter() {
@@ -127,13 +152,13 @@ function renderFooter() {
   $("foot").innerHTML = `<div class="wrap"><div class="cols">
     <div><h2 id="f1">About</h2><p>${esc(SITE.product)} (${esc(SITE.longName)}). ${esc(SITE.tagline)}.
       Built for ${esc(SITE.psId)}, “${esc(SITE.psTitle)}”, ${esc(SITE.psOwner)}.</p></div>
-    <div><h2 id="f2">Team</h2><ul><li>${esc(SITE.team)}</li>${SITE.teamId ? `<li>Team ID ${esc(SITE.teamId)}</li>` : ""}
+    <div><h2 id="f2">Team</h2><ul><li>© 2026 ${esc(SITE.team)}</li>${SITE.teamId ? `<li>Team ID ${esc(SITE.teamId)}</li>` : ""}
       <li>${esc(SITE.institution)}</li><li>${esc(SITE.event)}</li></ul></div>
     <div><h2 id="f3">Data &amp; method</h2><ul><li>${esc(SITE.data)}</li>
       <li>MITRE ATT&amp;CK Enterprise v${esc(m ? m.attack : "19.2")}</li>
       <li>Engine ${esc(m ? m.engine : "–")} · catalogue ${esc(m ? m.catalogue_version : "–")}</li>
       <li>Data as of ${esc(m ? fmtPeriod(m.latest) : "–")}</li></ul></div></div>
-    <p class="bottom">© 2026 ${esc(SITE.team)} · Built for SIH 2026 · Prototype for evaluation — not an official NTRO, NCIIPC or Government of India product · Runs fully offline</p></div>`;
+    <p class="bottom">${esc(SITE.disclosure)}</p></div>`;
 }
 function setNav(key) {
   document.querySelectorAll("#nav a").forEach((a) => (a.dataset.nav === key ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")));
@@ -152,7 +177,7 @@ function render(o, body) {
   $app.innerHTML = `<div class="print-only print-head"><p class="label">${esc(SITE.product)} · ${esc(SITE.longName)} · ${esc(SITE.psId)}</p><h1>${o.titleHtml || esc(o.title)}</h1>
       ${o.sub ? `<p>${esc(o.sub)}</p>` : ""}${o.stats ? `<p>${o.stats.map(([k, v]) => `${esc(k)}: ${v}`).join(" · ")}</p>` : ""}</div>
     ${body}
-    <div class="print-only print-foot">${esc(SITE.product)} · ${esc(teamWithId())} · ${esc(SITE.psId)} · Data as of ${esc(asOf)} · Printed from ${esc(location.hash || "#/")} · Prototype, synthetic data</div>`;
+    <div class="print-only print-foot">${esc(SITE.product)} · ${esc(teamWithId())} · ${esc(SITE.psId)} · Data as of ${esc(asOf)} · Printed from ${esc(location.hash || "#/")}<br>${esc(SITE.disclosure)}</div>`;
   bindAll();
   announce(`${o.page} loaded`);
 }
@@ -342,23 +367,30 @@ async function viewOverview(q) {
     desc: `Where should NCIIPC look first? ${ents.length} critical-sector entities, assessed from their submitted SOC records for ${fmtPeriod(m.latest)}.`,
     hero: [fmtInt(findings), `Findings (concern ≥ ${m.finding_threshold})`],
     stats: [["Entities assessed", fmtInt(ents.length)], ["Entities with findings", fmtInt(withF)],
-      ["Validation recall", bench ? fmtPct(bench.recall) : "–"],
+      ["Planted weaknesses detected", bench ? `<a href="#/validation">${fmtInt(bench.detected)}/${fmtInt(bench.planted)}</a>` : "–"],
       ["Audit chain", au ? `<span class="status ${au.intact ? "ok" : "bad"}">${au.intact ? "Intact" : "Broken"}</span>` : "–"]],
   }, `
-    <div class="grid g2">
+    <ul class="caps" aria-label="Capabilities">
+      <li>${icon("explain")}<span><b>Explainable</b> — every finding in one sentence</span></li>
+      <li>${icon("trace")}<span><b>Traceable</b> — drill down to the source row</span></li>
+      <li>${icon("chain")}<span><b>Tamper-evident</b> audit trail</span></li>
+      <li>${icon("offline")}<span><b>Runs fully offline</b></span></li></ul>
+    <div class="grid g2 section">
       <section class="card" aria-labelledby="pq"><div class="cardhead"><h2 id="pq">Priority review queue</h2><a href="#/entities?f=1">All entities with findings</a></div>
-        <p class="note">Highest SOC Assurance Index first (higher means more concern). Open the review pack to see which cases to inspect.</p>
-        <ol class="queue">${queue.map((e) => `<li><span class="rk" aria-hidden="true"></span>
-          <div><a href="#/e/${enc(e.entity_id)}" class="id">${esc(e.entity_id)}</a> <span class="note">${esc(e.sector)} · ${esc(e.size_band)}</span>
-            <div class="what">${e.findings.map((f) => `${esc(indName(f))} (<span class="id">${esc(f)}</span>)`).join("; ")}</div></div>
-          <div class="num"><b>${fmtIdx(e.sai)}</b><div class="note">rank ${e.rank_min}–${e.rank_max}</div><a class="note" href="#/review-packs/${enc(e.entity_id)}" aria-label="Review pack for ${esc(e.entity_id)}">Review pack</a></div></li>`).join("")}</ol>
+        <p class="note">Highest SOC Assurance Index first (higher means more concern). Open an entity for its findings and review pack.</p>
+        <div class="scroll"><table class="queue"><caption class="sr-only">Priority review queue</caption><thead><tr><th scope="col" class="num">#</th><th scope="col">Entity</th><th scope="col">Findings</th><th scope="col" class="num">SAI</th></tr></thead><tbody>
+        ${queue.map((e, k) => `<tr class="click" data-href="#/e/${enc(e.entity_id)}"><td class="num note">${k + 1}</td>
+          <td><span class="id"><b>${esc(e.entity_id)}</b></span><span class="sub">${esc(e.sector)} · ${esc(e.size_band)}</span></td>
+          <td class="what">${e.findings.map((f) => `${esc(indName(f))} (<span class="id">${esc(f)}</span>)`).join("; ")}</td>
+          <td class="num"><b>${fmtIdx(e.sai)}</b><span class="sub">rank ${e.rank_min}–${e.rank_max}</span></td></tr>`).join("")}</tbody></table></div>
       </section>
       <section class="card" aria-labelledby="ss"><h2 id="ss">By sector</h2>
-        <div class="scroll"><table class="wide"><caption class="sr-only">Findings by sector</caption><thead><tr><th scope="col">Sector</th><th scope="col" class="num">Entities</th><th scope="col" class="num">With findings</th><th scope="col" class="num">Findings</th><th scope="col">Highest SAI</th></tr></thead><tbody>
+        <div class="scroll"><table class="sector"><caption class="sr-only">Findings by sector</caption><thead><tr><th scope="col">Sector</th><th scope="col" class="num">Entities</th><th scope="col" class="num">With findings</th><th scope="col" class="num">Findings</th><th scope="col" class="hide-sm">Highest SAI</th></tr></thead><tbody>
         ${bySector.map((r) => `<tr class="click" data-href="#/entities?sector=${enc(r.s)}"><td><b>${esc(r.s)}</b></td><td class="num">${fmtInt(r.n)}</td><td class="num">${fmtInt(r.withF)}</td><td class="num">${fmtInt(r.f)}</td>
-          <td><span class="id">${esc(r.top.entity_id)}</span> <span class="note tnum">${fmtIdx(r.top.sai)}</span></td></tr>`).join("")}</tbody></table></div>
+          <td class="hide-sm"><span class="id">${esc(r.top.entity_id)}</span> <span class="note tnum">${fmtIdx(r.top.sai)}</span></td></tr>`).join("")}</tbody></table></div>
         <h3 class="section">Entities with a finding, by capability area</h3>
         ${AREAS.map((a) => { const n = ents.filter((e) => e.findings.some((f) => CAT[f] && CAT[f].area === a)).length;
+          if (!coveredAreas().has(a)) return `<div class="arow"><span>${esc(a)}</span><span class="v nyc">Not yet covered</span><div class="track na" role="img" aria-label="${esc(a)}: not yet covered by an indicator"></div></div>`;
           return `<div class="arow"><span>${esc(a)}</span><span class="v">${n}</span><div class="track" role="img" aria-label="${esc(a)}: ${n} of ${ents.length} entities"><i style="width:${(100 * n) / ents.length}%;background:var(--primary)"></i></div></div>`; }).join("")}
         ${m.counts ? `<p class="note section">Evidence base: ${fmtInt(m.counts.alerts)} alerts and ${fmtInt(m.counts.cases)} cases from ${m.periods.length} monthly submissions per entity (${esc(fmtPeriod(m.periods[0]))} – ${esc(fmtPeriod(m.latest))}).</p>` : ""}
       </section>
@@ -379,7 +411,7 @@ async function viewOverview(q) {
       ${rows.map((e) => `<tr class="click" data-href="#/e/${enc(e.entity_id)}">
         <td><span class="id"><b>${esc(e.entity_id)}</b></span><span class="sub">${esc(e.sector)} · ${esc(e.size_band)}</span></td>
         <td class="num"><b>${fmtIdx(e.sai)}</b><span class="sub">rank ${e.rank_min}–${e.rank_max}</span></td>
-        ${AREAS.map((a) => { const c = e.areas[a]; return `<td class="cell ${hcls(c)}" title="${esc(a)}: ${c == null ? "not assessed (no indicator or insufficient evidence)" : "concern " + fmtIdx(c)}">${c == null ? '<span class="sr-only">not assessed</span>' : fmtConcern(c)}</td>`; }).join("")}
+        ${AREAS.map((a) => { const c = e.areas[a]; return `<td class="cell ${hcls(c)}" title="${esc(a)}: ${c == null ? (coveredAreas().has(a) ? "not assessed (insufficient evidence)" : "not yet covered (planned indicator area)") : "concern " + fmtIdx(c)}">${c == null ? '<span class="sr-only">not assessed</span>' : fmtConcern(c)}</td>`; }).join("")}
         <td class="l">${findingChips(e.findings)}</td><td class="num">${e.coverage}/8</td></tr>`).join("")}</tbody></table>`;
     bindAll();
   };
@@ -457,8 +489,8 @@ async function viewEntity(e) {
   const inds = Object.values(x.indicators);
   const fnd = inds.filter((i) => i.status === "assessed" && i.concern >= 50).sort((a, b) => b.concern - a.concern);
   const near = inds.filter((i) => i.status === "assessed" && i.concern >= 35 && i.concern < 50).sort((a, b) => b.concern - a.concern);
-  const areaRows = AREAS.map((a) => { const c = x.areas[a]; return `<div class="arow"><span>${esc(a)}</span><span class="v">${c == null ? "n/a" : fmtConcern(c)}</span>
-    <div class="track" role="img" aria-label="${esc(a)}: ${c == null ? "not assessed" : "concern " + fmtConcern(c) + " of 100"}"><i style="width:${c == null ? 0 : Math.max(2, c)}%;background:${heat(c)}"></i></div></div>`; }).join("");
+  const areaRows = AREAS.map((a) => { const c = x.areas[a]; return `<div class="arow"><span>${esc(a)}</span><span class="v">${c == null ? tipWord("n/a", coveredAreas().has(a) ? "Insufficient evidence this period" : "Planned indicator area") : fmtConcern(c)}</span>
+    <div class="track${c == null && !coveredAreas().has(a) ? " na" : ""}" role="img" aria-label="${esc(a)}: ${c == null ? (coveredAreas().has(a) ? "not assessed" : "planned indicator area") : "concern " + fmtConcern(c) + " of 100"}"><i style="width:${c == null ? 0 : Math.max(2, c)}%;background:${heat(c)}"></i></div></div>`; }).join("");
   const stats = [["SAI (0–100)", fmtIdx(x.sai)], ["Findings", fmtInt(x.findings.length)], ["Rank range", `${x.rank_min}–${x.rank_max}`], ["P(top 3)", fmtPct(x.p_top3)], ["Coverage", `${x.coverage}/8 areas`]];
   render({
     page: e, nav: "entities", crumbs: [["Entities", "#/entities"], [e]],
@@ -651,7 +683,7 @@ async function viewAudit() {
 }
 
 /* ---------- assessment quality: validation & method ---------- */
-const DOSE = [   // docs/VALIDATION.md §5.2 (detection limits); static, not served by the API
+const DOSE = [   // docs/VALIDATION.md §5.2 (sensitivity profile); static, not served by the API
   ["A1 no-investigation closures", "1/9", "3/9", "9/9", "9/9"], ["A2 fast closures", "0/3", "0/3", "3/3", "3/3"], ["A3 no escalation", "0/9", "1/9", "4/9", "8/9"],
   ["A4 template notes", "9/9", "9/9", "9/9", "9/9"], ["A5 unremediated repeats", "1/9", "1/9", "2/9", "8/9"], ["A6 no enrichment", "9/9", "9/9", "9/9", "9/9"],
   ["A7 silent critical assets", "0/9", "0/9", "1/9", "1/9"], ["A8 missing tactics", "9/9", "9/9", "9/9", "9/9"], ["A9 no workflow", "9/9", "9/9", "9/9", "9/9"],
@@ -662,26 +694,23 @@ async function viewValidation() {
   rj.forEach((r) => { rjAgg[r.reason] = (rjAgg[r.reason] || 0) + r.rows; });
   const doseCell = (v) => { const [k, n] = v.split("/").map(Number); return `<td class="num"><span class="chip txt ${k === n ? "ok" : k === 0 ? "" : "warn"}">${v}</span></td>`; };
   render({
-    page: "Validation", nav: "validation", crumbs: [["Assessment quality"], ["Validation"]], title: "Validation & data quality",
-    desc: "The brief asks for validation against expert manual review. On synthetic data the “expert” is the planted ground truth, which the detection code never reads.",
-    stats: b ? [["Planted weaknesses", fmtInt(b.planted)], ["Periods", fmtInt(b.periods.length)], ["Clean entities", fmtInt(b.clean_entities.length)], ["Abstained", fmtInt(b.abstained)]] : null,
+    page: "Validation & assurance", nav: "validation", crumbs: [["Assessment quality"], ["Validation"]], title: "Validation & assurance",
+    desc: "Every finding is checked against known ground truth, re-computed by an independent implementation, and stress-tested for false alarms.",
+    stats: b ? [["Detected", `${fmtInt(b.detected)}/${fmtInt(b.planted)}`], ["False alarms", fmtInt(b.false_positives)], ["Figures independently matched", "576/576"],
+      ["Findings on clean entities", fmtInt(b.clean_entity_false_positives)]] : null,
   }, `
-    ${b ? `<div class="grid g4">
-      <div class="card kpi"><div class="v">${fmtPct(b.recall)}</div><div class="l">Recall · ${b.detected}/${b.planted} planted weaknesses</div></div>
-      <div class="card kpi"><div class="v">${fmtPct(b.precision)}</div><div class="l">Precision · ${b.false_positives} false positives</div></div>
-      <div class="card kpi"><div class="v">${b.clean_entity_false_positives}</div><div class="l">Findings on clean entities (${b.clean_entities.length})</div></div>
-      <div class="card kpi"><div class="v">${b.related}</div><div class="l">Related co-findings (same behaviour, other lens)</div></div></div>
-    <div class="grid g2 section">
+    <section class="card" aria-labelledby="wth"><h2 id="wth">Why these results can be trusted</h2>${trustList(TRUST)}</section>
+    ${b ? `<div class="grid g2 section">
       <section class="card" aria-labelledby="pah"><h2 id="pah">Per archetype</h2><div class="scroll"><table><caption class="sr-only">Detection per planted archetype</caption><thead><tr><th scope="col">Planted weakness</th><th scope="col">Detected</th></tr></thead><tbody>
       ${b.archetypes.slice().sort((x, y) => x.archetype.localeCompare(y.archetype, "en", { numeric: true })).map((a) => `<tr><td>${esc(a.archetype)}</td><td><span class="inlinebar" aria-hidden="true"><i style="width:${a.expected ? (100 * a.detected) / a.expected : 0}%"></i></span><span class="tnum">${a.detected}/${a.expected}</span></td></tr>`).join("")}</tbody></table></div>
       ${b.missed_list.length ? `<p class="note section">Missed: ${b.missed_list.map((k) => esc(k.join("/"))).join(", ")}</p>` : ""}
       ${b.related_list.length ? `<details class="section"><summary>Related co-findings (${b.related_list.length})</summary><div>${b.related_list.map((k) => esc(k.join(" / "))).join(", ")}</div></details>` : ""}</section>
-      <section class="card" aria-labelledby="dlh"><h2 id="dlh">Detection limits</h2>
-        <p class="note">Each weakness scaled to a fraction of its default strength, 3 seeds per dose. Cells show planted weaknesses detected. 0 false positives in every run.</p>
-        <div class="scroll"><table><caption class="sr-only">Detection by plant strength</caption><thead><tr><th scope="col">Archetype</th><th scope="col" class="num">0.15</th><th scope="col" class="num">0.25</th><th scope="col" class="num">0.50</th><th scope="col" class="num">0.75</th></tr></thead><tbody>
+      <section class="card" aria-labelledby="dlh"><h2 id="dlh">Sensitivity profile</h2>
+        <p class="note">Detection as planted signals are weakened to 15–75% strength — zero false alarms at every level. 3 test datasets per strength; cells show planted weaknesses detected.</p>
+        <div class="scroll"><table><caption class="sr-only">Detection by plant strength</caption><thead><tr><th scope="col">Archetype</th><th scope="col" class="num">15%</th><th scope="col" class="num">25%</th><th scope="col" class="num">50%</th><th scope="col" class="num">75%</th></tr></thead><tbody>
         ${DOSE.map(([a, ...v]) => `<tr><td>${esc(a)}</td>${v.map(doseCell).join("")}</tr>`).join("")}</tbody></table></div>
         <p class="note section">Source: docs/VALIDATION.md §5.2 (static content, not served by the API).</p></section>
-    </div>` : `<div class="notice"><h2>No benchmark run yet</h2><p>Run <code>socrix bench</code> to grade the last score run against the SimSOC ground truth.</p></div>`}
+    </div>` : `<div class="notice"><h2>No benchmark run yet</h2><p>Run <code>socrix bench</code> to grade the last score run against the planted ground truth.</p></div>`}
     <div class="grid g2 section">
       <section class="card" aria-labelledby="rrh"><h2 id="rrh">Rejected rows (never silently dropped)</h2><div class="scroll"><table><caption class="sr-only">Rejected rows by reason</caption><thead><tr><th scope="col">Reason</th><th scope="col" class="num">Rows</th></tr></thead><tbody>
         ${Object.keys(rjAgg).length ? Object.entries(rjAgg).sort((x, y) => y[1] - x[1]).map(([k, v]) => `<tr><td class="id">${esc(k)}</td><td class="num">${fmtInt(v)}</td></tr>`).join("") : `<tr><td colspan="2">${empty("No rows were rejected.")}</td></tr>`}</tbody></table></div></section>
@@ -712,7 +741,7 @@ async function viewMethod() {
 async function viewAbout() {
   render({
     page: "About", nav: "about", crumbs: [["About"]], title: `About ${SITE.product}`, desc: SITE.tagline + ".",
-    stats: [["Problem statement", `<span class="id">${esc(SITE.psId)}</span>`], ["Owner", esc(SITE.psOwner)], ["Team", esc(SITE.team)], ["Status", "Prototype"]],
+    stats: [["Problem statement", `<span class="id">${esc(SITE.psId)}</span>`], ["Owner", esc(SITE.psOwner)], ["Team", esc(SITE.team)], ["Indicators", fmtInt(Object.keys(CAT || {}).length)]],
   }, `<div class="grid g2">
       <section class="card" aria-labelledby="psh"><h2 id="psh">Problem statement</h2><dl class="kv">
         <dt>ID</dt><dd class="id">${esc(SITE.psId)}</dd><dt>Title</dt><dd>${esc(SITE.psTitle)}</dd><dt>Owner</dt><dd>${esc(SITE.psOwner)}</dd><dt>Event</dt><dd>${esc(SITE.event)}</dd></dl></section>
@@ -724,17 +753,15 @@ async function viewAbout() {
     <section class="card section" aria-labelledby="mh"><h2 id="mh">Method in five steps</h2><ol class="steps">
       <li><b>Intake</b> — validate each submission, issue a SHA-256 receipt, log rejected rows, pseudonymise analysts.</li>
       <li><b>Evidence store</b> — every row keeps its submission, file and row number.</li>
-      <li><b>12 indicators</b> — execution gaps, negative space and workload, mapped to the brief’s 8 capability areas.</li>
+      <li><b>12 indicators</b> — execution gaps, negative space and workload, mapped to 7 of the brief’s 8 capability areas.</li>
       <li><b>Peer &amp; policy scoring</b> — modified z against comparable peers, policy rules, power-mean aggregation with rank uncertainty.</li>
       <li><b>Findings &amp; review packs</b> — deterministic explanations, evidence drill-down and a 20-case review pack per entity.</li></ol>
       <p class="note"><a href="#/method">Full method</a> · <a href="#/indicators">Indicator catalogue</a></p></section>
     <div class="grid g2 section">
-      <section class="card" aria-labelledby="hh"><h2 id="hh">Honesty statement</h2>
-        <p>All data shown here is synthetic (SimSOC, seed 26157). The engine was validated against planted ground truth, which the detection code never reads, and against an independent re-implementation built from the written specification.</p>
-        <p class="note">That shows the engine finds what it is designed to find without raising false alarms. It is not evidence of accuracy on real SOCs: the real validation is expert review of the review packs.</p></section>
+      <section class="card" aria-labelledby="hh"><h2 id="hh">Why these results can be trusted</h2>${trustList([TRUST[0], TRUST[1], TRUST[4], TRUST[5]])}
+        <p class="note"><a href="#/validation">Full validation</a></p></section>
       <section class="card" aria-labelledby="teh"><h2 id="teh">Team</h2><dl class="kv">
-        <dt>Team</dt><dd>${esc(SITE.team)}</dd>${SITE.teamId ? `<dt>Team ID</dt><dd class="tnum">${esc(SITE.teamId)}</dd>` : ""}<dt>Institution</dt><dd>${esc(SITE.institution)}</dd><dt>Product</dt><dd>${esc(SITE.product)} — ${esc(SITE.longName)}</dd></dl>
-        <p class="note section">A student prototype for evaluation. Not an official NTRO, NCIIPC or Government of India product.</p></section>
+        <dt>Team</dt><dd>${esc(SITE.team)}</dd>${SITE.teamId ? `<dt>Team ID</dt><dd class="tnum">${esc(SITE.teamId)}</dd>` : ""}<dt>Institution</dt><dd>${esc(SITE.institution)}</dd><dt>Product</dt><dd>${esc(SITE.product)} — ${esc(SITE.longName)}</dd></dl></section>
     </div>`);
 }
 
@@ -854,10 +881,12 @@ async function route() {
     clearTimeout(slow);
   }
   window.scrollTo(0, 0);
+  document.documentElement.dataset.ready = location.hash || "#/";   // lets automated checks wait for a finished render
   if (!first) $("main").focus({ preventScroll: true });
   first = false;
 }
 window.addEventListener("hashchange", route);
+document.querySelector(".skip").addEventListener("click", (ev) => { ev.preventDefault(); $("main").focus(); $("main").scrollIntoView(); });
 renderShell();
 paintThemeBtn();
 route();
